@@ -16,32 +16,32 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_gravity="center">
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/a"
                 android:id="@+id/a_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/b"
                 android:id="@+id/b_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/c"
                 android:id="@+id/c_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/d"
                 android:id="@+id/d_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/e"
                 android:id="@+id/e_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/f"
@@ -52,32 +52,32 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_gravity="center">
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/g"
                 android:id="@+id/g_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/h"
                 android:id="@+id/h_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/i"
                 android:id="@+id/i_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/j"
                 android:id="@+id/j_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/k"
                 android:id="@+id/k_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/l"
@@ -88,32 +88,32 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_gravity="center">
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/m"
                 android:id="@+id/m_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/n"
                 android:id="@+id/n_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/o"
                 android:id="@+id/o_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/p"
                 android:id="@+id/p_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/q"
                 android:id="@+id/q_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/r"
@@ -124,32 +124,32 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_gravity="center">
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/s"
                 android:id="@+id/s_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/t"
                 android:id="@+id/t_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/u"
                 android:id="@+id/u_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/v"
                 android:id="@+id/v_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/w"
                 android:id="@+id/w_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/x"
@@ -160,12 +160,12 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_gravity="center">
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/y"
                 android:id="@+id/y_btn"/>
-            <ImageButton
+            <ImageView
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:background="@drawable/z"
