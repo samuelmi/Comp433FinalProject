@@ -30,6 +30,7 @@
             android:layout_gravity="center"
             android:backgroundTint="@color/green"
             android:text="Start Game"
+            android:onClick="onClick"
             android:id="@+id/start_btn"/>
         <Button
             android:layout_width="wrap_content"
@@ -37,6 +38,7 @@
             android:layout_gravity="center"
             android:backgroundTint="@color/orange_red"
             android:text="History"
+            android:onClick="onClick"
             android:id="@+id/history_btn"/>
     </LinearLayout>
   </RelativeLayout>
