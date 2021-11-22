@@ -8,11 +8,9 @@ import static java.lang.Thread.sleep;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -20,7 +18,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,26 +36,20 @@ import com.google.api.services.vision.v1.model.Image;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 public class GameActivity extends AppCompatActivity {
     Context context;
 
-    TextView timer;
-    ImageView iv;
+    TextView timer;             // Text view that displays time between rounds
 
-    Bitmap image;
+    Bitmap image;               // Image returned by camera
 
-    boolean animate;
-    String letterToAnimate;
+    String letter;              // The letter used
+    int letterId;               // ID of the ImageView associated with the letter
     ArrayList<String> remainingLetters = new ArrayList<>();
 
     long timeStart;
@@ -88,17 +79,17 @@ public class GameActivity extends AppCompatActivity {
     public void stopGame() {
         m.stop(); // Stops the music
         resetGame();
+        Intent intent = new Intent(this, MenuActivity.class);
+        startActivity(intent);
     }
 
 
     public void animateLetter() {
-        animate = true;
         Thread t = new Thread() {
             @Override
             public void run() {
                 int audioSessionId;
-                int letterId;
-                switch (letterToAnimate) { // Gets the audio clip and ID for ImageButton to animate
+                switch (letter) { // Gets the audio clip and ID for ImageButton to animate
                     case "a": audioSessionId = R.raw.a; letterId = R.id.a_btn; break;
                     case "b": audioSessionId = R.raw.b; letterId = R.id.b_btn; break;
                     case "c": audioSessionId = R.raw.c; letterId = R.id.c_btn; break;
@@ -131,8 +122,8 @@ public class GameActivity extends AppCompatActivity {
                 try {
                     MediaPlayer childVoice = MediaPlayer.create(context, audioSessionId);
                     ImageView iv = findViewById(letterId);
-                    String localLetterCopy = letterToAnimate;
-                    while (localLetterCopy == letterToAnimate) { // Loop until the letter to animate is not longer this;
+                    String localLetterCopy = letter;
+                    while (localLetterCopy == letter) { // Loop until the letter to animate is not longer this;
                         childVoice.start();
                         runOnUiThread(new Runnable() {
                             @Override
@@ -175,27 +166,30 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void getNextLetter() {
+        if (remainingLetters.size() == 0) stopGame();  // Stop game and return to menu if no letters left
         Collections.shuffle(remainingLetters);
-        letterToAnimate = remainingLetters.remove(0);
-        Log.v("MyTag", "Letter to animate: "+letterToAnimate);
+        letter = remainingLetters.remove(0);
+        Log.v("MyTag", "Letter to animate: "+ letter);
         timeStart = System.currentTimeMillis(); // Resets timer
         animateLetter();
     }
 
     public void resetGame() {
-        animate = false;
         remainingLetters = new ArrayList<>(Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"));
-        letterToAnimate = "";
+        letter = "";
     }
 
 
     public void click(View v) {
         int id = v.getId();
 
-        iv = findViewById(id);
-
-        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, 1);
+        if (id == letterId) {
+            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(cameraIntent, 1);
+        }
+        else if (id == R.id.back_btn) { // Returns to menu
+            stopGame();
+        }
     }
 
     @Override
@@ -217,6 +211,8 @@ public class GameActivity extends AppCompatActivity {
 
     void getImageLabels() throws IOException
     {
+        ImageView iv = findViewById(letterId);
+
         //1. ENCODE image.
         Bitmap bitmap = image;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -254,7 +250,7 @@ public class GameActivity extends AppCompatActivity {
         for (int i = 0; i < annotations.length; i ++) {
             EntityAnnotation a = annotations[i];
             // If the photo is taken of something that starts with the right letter, mark correct
-            if (a.getDescription().substring(0,1).toLowerCase().equals(letterToAnimate)) {
+            if (a.getDescription().substring(0,1).toLowerCase().equals(letter)) {
                 correct = true;
                 break;
             }
