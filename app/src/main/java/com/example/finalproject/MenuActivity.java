@@ -26,6 +26,10 @@ public class MenuActivity extends AppCompatActivity {
             Intent intent = new Intent(this, GameActivity.class);
             startActivity(intent);
         }
+        else {
+            Intent intent = new Intent(this, HistoryActivity.class);
+            startActivity(intent);
+        }
     }
 
 }

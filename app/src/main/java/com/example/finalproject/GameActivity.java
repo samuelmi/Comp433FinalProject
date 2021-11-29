@@ -8,8 +8,10 @@ import static java.lang.Thread.sleep;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -42,6 +44,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class GameActivity extends AppCompatActivity {
+    SQLiteDatabase db;
+
     Context context;
 
     TextView timer;             // Text view that displays time between rounds
@@ -62,6 +66,12 @@ public class GameActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
+
+        // SQLite Database Creation
+        db = openOrCreateDatabase("MyDatabase", Context.MODE_PRIVATE, null);
+        db.execSQL("CREATE TABLE IF NOT EXISTS Images (Image BLOB, Letter TEXT, ElapsedTime INT, Timestamp INT)"); // If Images table doesn't exist, create it
+
+
         context = getApplicationContext();
         timer = findViewById(R.id.timer);
         startGame();
@@ -219,6 +229,15 @@ public class GameActivity extends AppCompatActivity {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 90, bout);
         Image myimage = new Image();
         myimage.encodeContent(bout.toByteArray());
+
+        // Inserts image into DB
+        ContentValues cv = new ContentValues();
+        cv.put("Image", bout.toByteArray());
+        cv.put("Letter", letter);
+        cv.put("ElapsedTime", (System.currentTimeMillis() - timeStart) / 1000);
+        cv.put("Timestamp", System.currentTimeMillis());
+        db.insert("Images", null, cv); // Inserts into db
+
 
         //2. PREPARE AnnotateImageRequest
         AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
