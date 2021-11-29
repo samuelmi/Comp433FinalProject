@@ -5,6 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HistoryActivity">
+    <ImageButton
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/back"
+        android:onClick="onClick"/>
 
     <com.github.mikephil.charting.charts.BarChart
         android:layout_height="match_parent"

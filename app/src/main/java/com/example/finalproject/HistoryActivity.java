@@ -5,10 +5,12 @@ import androidx.compose.ui.graphics.drawscope.Fill;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -34,7 +36,6 @@ public class HistoryActivity extends AppCompatActivity {
 
     String[] letters = new String[]{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +46,11 @@ public class HistoryActivity extends AppCompatActivity {
         //printDbContents();
         initBarChart();
         showBarChart();
+    }
+
+    public void onClick(View v) {
+        Intent intent = new Intent(this, MenuActivity.class);
+        startActivity(intent);
     }
 
     private void showBarChart(){
