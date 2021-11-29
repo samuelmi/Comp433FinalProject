@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
@@ -19,6 +20,7 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 
 import java.util.ArrayList;
@@ -48,7 +50,7 @@ public class HistoryActivity extends AppCompatActivity {
     private void showBarChart(){
         ArrayList<Double> valueList = new ArrayList<Double>();
         ArrayList<BarEntry> entries = new ArrayList<>();
-        String title = "Title";
+        String title = "Average Times";
 
         for (String letter : letters) {
             Cursor c = db.rawQuery(String.format("SELECT ElapsedTime from Images WHERE Letter == \"%s\"", letter), null);
@@ -74,22 +76,6 @@ public class HistoryActivity extends AppCompatActivity {
         barChart.invalidate();
     }
 
-    public void printDbContents() {
-        Cursor c = db.rawQuery("SELECT * from Images", null);
-        c.moveToFirst();
-        for(int i = 0; i < c.getCount(); i++){
-
-            for(int j = 0; j < c.getColumnCount(); j++) {
-                switch (j) {
-                    case 0: Log.v("MyTag", c.getBlob(j).toString()); break;
-                    case 1: Log.v("MyTag", c.getString(j)); break;
-                    default: Log.v("MyTag", ""+c.getInt(j)); break;
-                }
-            }
-            c.moveToNext();
-
-        }
-    }
 
     private void initBarChart(){
         //hiding the grey background of the chart, default false if not set
@@ -110,14 +96,15 @@ public class HistoryActivity extends AppCompatActivity {
         barChart.animateX(1000);
 
         XAxis xAxis = barChart.getXAxis();
-        //change the position of x-axis to the bottom
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        //set the horizontal distance of the grid line
-        xAxis.setGranularity(1f);
-        //hiding the x-axis line, default true if not set
-        xAxis.setDrawAxisLine(false);
-        //hiding the vertical grid lines, default true if not set
         xAxis.setDrawGridLines(false);
+        xAxis.setLabelCount(26);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getAxisLabel(float value, AxisBase axis) {
+                return letters[(int)value];
+            }
+        });
 
         YAxis leftAxis = barChart.getAxisLeft();
         //hiding the left y-axis line, default true if not set
