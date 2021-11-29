@@ -268,10 +268,18 @@ public class GameActivity extends AppCompatActivity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                MediaPlayer cheers = MediaPlayer.create(context, R.raw.woohoo);
+                MediaPlayer boos = MediaPlayer.create(context, R.raw.oh);
+
+
+                m.setLooping(true);
+                m.start();
                 if (finalCorrect) {
+                    cheers.start();
                     iv.setImageDrawable(getResources().getDrawable(right));
                 }
                 else {
+                    boos.start();
                     iv.setImageDrawable(getResources().getDrawable(wrong));
                 }
                 Animation anim = new ScaleAnimation(
