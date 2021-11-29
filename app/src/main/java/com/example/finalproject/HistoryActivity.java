@@ -65,7 +65,10 @@ public class HistoryActivity extends AppCompatActivity {
             for (int i = 0; i < c.getCount(); i++) {
                 sum += c.getInt(0);
             }
-            double avg = sum / c.getCount(); // Computes average elapsed time
+            double avg = 0;
+            if (c.getCount() > 0) {
+                avg = sum / c.getCount(); // Computes average elapsed time
+            }
             valueList.add(avg);
         }
 
