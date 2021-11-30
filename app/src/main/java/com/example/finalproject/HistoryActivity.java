@@ -25,6 +25,7 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,12 +37,16 @@ public class HistoryActivity extends AppCompatActivity {
 
     String[] letters = new String[]{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
 
+    ArrayList<ArrayList<Tuple<byte[], Long>>> recentPhotos;  // ArrayList that will be populated with the 3 most recent photos (if there are even 3 photos) for each letter. recentPhotos[0] = recent photos for A, etc.
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
         db = openOrCreateDatabase("MyDatabase", Context.MODE_PRIVATE, null);
         barChart = findViewById(R.id.chart);
+
+        getRecentPhotos();
 
         //printDbContents();
         initBarChart();
@@ -51,6 +56,39 @@ public class HistoryActivity extends AppCompatActivity {
     public void onClick(View v) {
         Intent intent = new Intent(this, MenuActivity.class);
         startActivity(intent);
+    }
+
+    public void getRecentPhotos() {
+        // Clears the recentPhotos array
+        recentPhotos = new ArrayList<ArrayList<Tuple<byte[], Long>>>();
+
+        for (int i = 0; i < letters.length; i++) {
+            // Gets all Image byte arrays for a given letter
+            Cursor c = db.rawQuery(String.format("SELECT Image, Timestamp from Images WHERE Letter == \"%s\"", letters[i]), null);
+            c.moveToFirst();
+            ArrayList<Tuple<byte[], Long>> threeMostRecent = new ArrayList<>(); // Creates a new ArrayList to store the 3 most recent image bitmap byte arrays
+            // Iterates through each result
+            for (int j = 0; j < c.getCount(); j++) {
+                if (threeMostRecent.size() < 3) { // While the ArrayList is smaller than 3 entries, by default this Byte array will be the most recent
+                    threeMostRecent.add(new Tuple<byte[], Long>(c.getBlob(0), c.getLong(1))); // Adds tuple pair
+                }
+                else { // Otherwise will need to check for only the 3 most recent photos
+                    Tuple<byte[], Long> oldestPhoto = null;
+                    for (Tuple<byte[], Long> tuple : threeMostRecent) { // Loops through each Tuple until it finds (if any) one that has a smaller Timestamp
+                        if (c.getLong(1) > tuple.y) { // If this photo is newer
+                            // If no oldestPhoto has been chosen or if the one previously chosen is newer than this one, replace it
+                            if (oldestPhoto == null || oldestPhoto.y > tuple.y) oldestPhoto = tuple;
+                        }
+                    }
+                    if (oldestPhoto != null) {
+                        threeMostRecent.remove(oldestPhoto);
+                        threeMostRecent.add(new Tuple(c.getBlob(0), c.getLong(1))); // Replaces the oldest of the most recent with this photo if applicable
+                    }
+                }
+                recentPhotos.add(threeMostRecent); // Adds data to recentPhotos ArrayList
+                c.moveToNext(); // Moves cursor to the next entry
+            }
+        }
     }
 
     private void showBarChart(){
