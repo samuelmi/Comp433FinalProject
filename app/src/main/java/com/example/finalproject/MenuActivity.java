@@ -4,12 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 
 public class MenuActivity extends AppCompatActivity {
     Context context;
+    SQLiteDatabase db;
 
 
     @Override
@@ -17,6 +19,10 @@ public class MenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         context = getApplicationContext();
+
+        // SQLite Database Creation
+        db = openOrCreateDatabase("MyDatabase", Context.MODE_PRIVATE, null);
+        db.execSQL("CREATE TABLE IF NOT EXISTS Images (Image BLOB, Letter TEXT, Tags TEXT, Score TEXT, ElapsedTime INT, Timestamp INT)"); // If Images table doesn't exist, create it
     }
 
     public void onClick(View v) {

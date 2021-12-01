@@ -69,8 +69,6 @@ public class GameActivity extends AppCompatActivity {
 
         // SQLite Database Creation
         db = openOrCreateDatabase("MyDatabase", Context.MODE_PRIVATE, null);
-        db.execSQL("CREATE TABLE IF NOT EXISTS Images (Image BLOB, Letter TEXT, ElapsedTime INT, Timestamp INT)"); // If Images table doesn't exist, create it
-
 
         context = getApplicationContext();
         timer = findViewById(R.id.timer);
@@ -166,6 +164,7 @@ public class GameActivity extends AppCompatActivity {
                         });
                         sleep(1000);
                     }
+                    childVoice.stop();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -230,13 +229,12 @@ public class GameActivity extends AppCompatActivity {
         Image myimage = new Image();
         myimage.encodeContent(bout.toByteArray());
 
-        // Inserts image into DB
         ContentValues cv = new ContentValues();
         cv.put("Image", bout.toByteArray());
         cv.put("Letter", letter);
         cv.put("ElapsedTime", (System.currentTimeMillis() - timeStart) / 1000);
         cv.put("Timestamp", System.currentTimeMillis());
-        db.insert("Images", null, cv); // Inserts into db
+
 
 
         //2. PREPARE AnnotateImageRequest
@@ -266,14 +264,18 @@ public class GameActivity extends AppCompatActivity {
 
         EntityAnnotation[] annotations = response.getResponses().get(0).getLabelAnnotations().toArray(new EntityAnnotation[0]);
         boolean correct = false;
+        String tags = "";
         for (int i = 0; i < annotations.length; i ++) {
             EntityAnnotation a = annotations[i];
             // If the photo is taken of something that starts with the right letter, mark correct
-            if (a.getDescription().substring(0,1).toLowerCase().equals(letter)) {
-                correct = true;
-                break;
-            }
+            if (a.getDescription().substring(0,1).toLowerCase().equals(letter)) correct = true;
+            tags += a.getDescription() + (i == annotations.length - 1 ? "" : ", ");
         }
+
+        cv.put("Tags", tags);
+        cv.put("Score", correct ? "Correct" : "Incorrect");
+        db.insert("Images", null, cv); // Inserts into db
+
 
         getNextLetter(); // Gets the next letter
 

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".HistoryActivity">
     <ImageButton
         android:layout_width="30dp"
@@ -15,5 +16,18 @@
         android:layout_height="50mm"
         android:layout_width="match_parent"
         android:id="@+id/chart"/>
+
+    <ScrollView
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:id="@+id/scrollView">
+        </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

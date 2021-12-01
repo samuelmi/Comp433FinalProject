@@ -1,16 +1,19 @@
 package com.example.finalproject;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.compose.ui.graphics.drawscope.Fill;
-import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.icu.text.DateTimePatternGenerator;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
@@ -21,23 +24,24 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.data.CandleEntry;
 import com.github.mikephil.charting.formatter.ValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.List;
 
 public class HistoryActivity extends AppCompatActivity {
+
+    Context context;
 
     BarChart barChart;
 
     SQLiteDatabase db;
 
+    LinearLayout scrollView;
+
     String[] letters = new String[]{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"};
 
-    ArrayList<ArrayList<Tuple<byte[], Long>>> recentPhotos;  // ArrayList that will be populated with the 3 most recent photos (if there are even 3 photos) for each letter. recentPhotos[0] = recent photos for A, etc.
+    ArrayList<ArrayList<ImageSubmission>> recentPhotos;  // ArrayList that will be populated with the 3 most recent photos (if there are even 3 photos) for each letter. recentPhotos[0] = recent photos for A, etc.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +49,10 @@ public class HistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_history);
         db = openOrCreateDatabase("MyDatabase", Context.MODE_PRIVATE, null);
         barChart = findViewById(R.id.chart);
-
+        scrollView = findViewById(R.id.scrollView);
+        context = getApplicationContext();
         getRecentPhotos();
+        showRecentPhotos();
 
         //printDbContents();
         initBarChart();
@@ -58,36 +64,88 @@ public class HistoryActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    // Method for displaying the three most recent photos
+    public void showRecentPhotos() {
+        for (int i = 0; i < recentPhotos.size(); i++) {
+            ArrayList<ImageSubmission> threeMostRecent = recentPhotos.get(i);
+
+            LinearLayout top = new LinearLayout(context);
+            top.setOrientation(LinearLayout.VERTICAL);
+            top.setGravity(Gravity.CENTER); // Centers components
+
+            TextView tv = new TextView(context);
+            tv.setText(letters[i].toUpperCase());
+            tv.setGravity(Gravity.CENTER);
+            tv.setTextSize(20);
+
+            LinearLayout imagePanel = new LinearLayout(context); // Panel that will hold the 3 images
+            imagePanel.setOrientation(LinearLayout.HORIZONTAL);
+            imagePanel.setGravity(Gravity.CENTER);
+
+            for (ImageSubmission imageSubmission : threeMostRecent) {
+                LinearLayout imageLayout = new LinearLayout(context);
+                imageLayout.setOrientation(LinearLayout.VERTICAL);
+
+                ImageView iv = new ImageView(context);
+                iv.setImageBitmap(imageSubmission.image);
+                imageLayout.addView(iv);
+
+                TextView tags = new TextView(context);
+                tags.setText(imageSubmission.tags.replace(",", "\n"));
+                tags.setTextSize(10);
+                tags.setGravity(Gravity.CENTER);
+                imageLayout.addView(tags);
+
+                TextView timestamp = new TextView(context);
+                timestamp.setText(imageSubmission.timestamp.toString());
+                timestamp.setTextSize(10);
+                timestamp.setGravity(Gravity.CENTER);
+                imageLayout.addView(timestamp);
+
+                TextView elapsedTime = new TextView(context);
+                elapsedTime.setText("Took " + imageSubmission.elapsedTime + " seconds to take photo");
+                elapsedTime.setTextSize(10);
+                elapsedTime.setGravity(Gravity.CENTER);                imageLayout.addView(elapsedTime);
+
+                imagePanel.addView(imageLayout);                         // Adds image taken to imagePanel
+            }
+
+            top.addView(tv);
+            top.addView(imagePanel); // Adds the image panel
+            scrollView.addView(top);
+        }
+    }
+
     public void getRecentPhotos() {
         // Clears the recentPhotos array
-        recentPhotos = new ArrayList<ArrayList<Tuple<byte[], Long>>>();
+        recentPhotos = new ArrayList<ArrayList<ImageSubmission>>();
 
         for (int i = 0; i < letters.length; i++) {
             // Gets all Image byte arrays for a given letter
-            Cursor c = db.rawQuery(String.format("SELECT Image, Timestamp from Images WHERE Letter == \"%s\"", letters[i]), null);
+            Cursor c = db.rawQuery(String.format("SELECT Image, Letter, Tags, Score, ElapsedTime, Timestamp from Images WHERE Letter == \"%s\"", letters[i]), null);
             c.moveToFirst();
-            ArrayList<Tuple<byte[], Long>> threeMostRecent = new ArrayList<>(); // Creates a new ArrayList to store the 3 most recent image bitmap byte arrays
+            ArrayList<ImageSubmission> threeMostRecent = new ArrayList<>(); // Creates a new ArrayList to store the 3 most recent image bitmap byte arrays
             // Iterates through each result
             for (int j = 0; j < c.getCount(); j++) {
                 if (threeMostRecent.size() < 3) { // While the ArrayList is smaller than 3 entries, by default this Byte array will be the most recent
-                    threeMostRecent.add(new Tuple<byte[], Long>(c.getBlob(0), c.getLong(1))); // Adds tuple pair
+                    threeMostRecent.add(new ImageSubmission(c.getBlob(0), c.getString(1), c.getString(2), c.getString(3), c.getInt(4), c.getLong(5)));
                 }
                 else { // Otherwise will need to check for only the 3 most recent photos
-                    Tuple<byte[], Long> oldestPhoto = null;
-                    for (Tuple<byte[], Long> tuple : threeMostRecent) { // Loops through each Tuple until it finds (if any) one that has a smaller Timestamp
-                        if (c.getLong(1) > tuple.y) { // If this photo is newer
+                    ImageSubmission oldestPhoto = null;
+                    for (ImageSubmission imageSubmission : threeMostRecent) { // Loops through each Tuple until it finds (if any) one that has a smaller Timestamp
+                        if (c.getLong(5) > imageSubmission.timestamp.getTime()) { // If this photo is newer
                             // If no oldestPhoto has been chosen or if the one previously chosen is newer than this one, replace it
-                            if (oldestPhoto == null || oldestPhoto.y > tuple.y) oldestPhoto = tuple;
+                            if (oldestPhoto == null || oldestPhoto.timestamp.getTime() > imageSubmission.timestamp.getTime()) oldestPhoto = imageSubmission;
                         }
                     }
                     if (oldestPhoto != null) {
                         threeMostRecent.remove(oldestPhoto);
-                        threeMostRecent.add(new Tuple(c.getBlob(0), c.getLong(1))); // Replaces the oldest of the most recent with this photo if applicable
+                        threeMostRecent.add(new ImageSubmission(c.getBlob(0), c.getString(1), c.getString(2), c.getString(3), c.getInt(4), c.getLong(5))); // Replaces the oldest of the most recent with this photo if applicable
                     }
                 }
-                recentPhotos.add(threeMostRecent); // Adds data to recentPhotos ArrayList
                 c.moveToNext(); // Moves cursor to the next entry
             }
+            recentPhotos.add(threeMostRecent); // Adds data to recentPhotos ArrayList
         }
     }
 
